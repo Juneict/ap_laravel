@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
+use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Http\Requests\StorePostRequest;
 
 class HomeController extends Controller
 {
@@ -13,7 +16,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        //
+        // $data = Post::all();
+        $data = Post::orderBy('id','desc')->get();
+        return view('home', compact('data'));
     }
 
     /**
@@ -23,7 +28,8 @@ class HomeController extends Controller
      */
     public function create()
     {
-        //
+        $categories = Category::all();
+        return view('create', compact('categories'));
     }
 
     /**
@@ -32,10 +38,13 @@ class HomeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StorePostRequest $request)
     {
-        //
-    }
+        $validated = $request->validated();
+        
+        Post::create($validated);
+        return redirect('/posts');
+    }   
 
     /**
      * Display the specified resource.
@@ -43,9 +52,10 @@ class HomeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Post $post)
     {
-        //
+       
+        return view('show',compact('post'));
     }
 
     /**
@@ -54,9 +64,10 @@ class HomeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Post $post)
     {
-        //
+        $categories = Category::all();
+        return view('edit', compact('post','categories'));
     }
 
     /**
@@ -66,9 +77,11 @@ class HomeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(StorePostRequest $request, Post $post)
     {
-        //
+        $validated = $request->validated();
+        $post->update($validated);
+        return redirect('/posts');
     }
 
     /**
@@ -79,6 +92,7 @@ class HomeController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $post = Post::findOrFail($id)->delete();
+        return redirect('/posts');
     }
 }

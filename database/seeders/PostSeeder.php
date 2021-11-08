@@ -15,10 +15,10 @@ class PostSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('post')->insert([
+        DB::table('posts')->insert([
             'name' => Str::random(10),
             'description' => Str::random(100),
-            'created_at' => DATE('Y-m-d'),
+            'created_at' => date('Y-m-d H:i:s'),
         ]);
     }
 }
