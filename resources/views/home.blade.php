@@ -3,8 +3,15 @@
     <div class="container">
         <div>
             <a href="/posts/create" class="btn btn-success">New Post</a>
-            <a href="logout" class="btn btn-warning">Logout</a>
+            <a href="/logout" class="btn btn-warning">Logout</a>
+            <h3 style="float:right">{{ Auth::user()->name }}</h3>
         </div><br>
+        @if (session('status'))
+        <div class="alert alert-info alert-dismissible">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <strong>success!</strong> {{ session('status') }}
+        </div>
+        @endif
         <div class="card">
             <div class="card-header" style="text-align:center">
                 Contents

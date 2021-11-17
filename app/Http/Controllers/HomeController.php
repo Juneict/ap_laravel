@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Mail\PostStored;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\StorePostRequest;
 
 class HomeController extends Controller
@@ -14,10 +17,13 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        // $data = Post::all();
-        $data = Post::orderBy('id','desc')->get();
+        // Mail::raw('Hello World', function($msg){
+        //     $msg->to('junemoenyinyict@gmail.com')->subject('AP Inde Function');
+        // });
+        $data = Post::where('user_id',auth()->id())->orderBy('id','desc')->get();
+        
         return view('home', compact('data'));
     }
 
@@ -42,8 +48,9 @@ class HomeController extends Controller
     {
         $validated = $request->validated();
         
-        Post::create($validated);
-        return redirect('/posts');
+        $post = Post::create($validated + ['user_id' =>Auth::user()->id]);
+
+         return redirect('/posts')->with('status', config('aprogrammer.message.created'));
     }   
 
     /**
@@ -54,7 +61,10 @@ class HomeController extends Controller
      */
     public function show(Post $post)
     {
-       
+    //    if($post->user_id != auth()->id()){
+    //        abort(403);
+    //    }
+        $this->authorize('view',$post);
         return view('show',compact('post'));
     }
 
@@ -66,6 +76,10 @@ class HomeController extends Controller
      */
     public function edit(Post $post)
     {
+        // if($post->user_id != auth()->id()){
+        //     abort(403);
+        // }
+        $this->authorize('view',$post);
         $categories = Category::all();
         return view('edit', compact('post','categories'));
     }
@@ -81,7 +95,7 @@ class HomeController extends Controller
     {
         $validated = $request->validated();
         $post->update($validated);
-        return redirect('/posts');
+        return redirect('/posts')->with('status', config('aprogrammer.message.updated'));
     }
 
     /**
@@ -93,6 +107,6 @@ class HomeController extends Controller
     public function destroy($id)
     {
         $post = Post::findOrFail($id)->delete();
-        return redirect('/posts');
+        return redirect('/posts')->with('status', config('aprogrammer.message.deleted'));
     }
 }
